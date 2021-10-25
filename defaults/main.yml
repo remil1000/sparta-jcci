@@ -1,0 +1,39 @@
+#sparta_jcci_docker_port: 8888
+
+sparta_jcci_docker_data_files: "{}"
+sparta_jcci_docker_empty_data:
+  organization: ''
+  updated_date: ''
+  data: []
+
+sparta_jcci_docker_pep_proxy_network_name: "sparta-jcci"
+sparta_jcci_docker_pep_proxy_network: "100.100.5.0/24"
+sparta_jcci_docker_image_name: "gitlab-ph.srv.office.secin.lu:5005/sysadmin/public/sparta-jcci"
+sparta_jcci_docker_image_tag: "0.1.0"
+sparta_jcci_docker_image: "{{ sparta_jcci_docker_image_name }}:{{ sparta_jcci_docker_image_tag }}"
+
+sparta_jcci_docker_environment: "production"
+sparta_jcci_docker_container_name: "sparta-jcci-{{ sparta_jcci_docker_environment }}"
+
+sparta_jcci_docker_pep_proxy_image: "fiware/pep-proxy:8.1.0"
+sparta_jcci_docker_pep_proxy_host: "pep-proxy-{{ sparta_jcci_docker_environment }}"
+
+sparta_jcci_docker_pep_proxy_app_host: "{{ sparta_jcci_docker_container_name }}"
+sparta_jcci_docker_pep_proxy_app_port: "5004"
+sparta_jcci_docker_pep_proxy_port: "{{ sparta_jcci_docker_port }}"
+sparta_jcci_docker_pep_proxy_https_enabled: "false"
+sparta_jcci_docker_pep_proxy_https_port: "8889"
+sparta_jcci_docker_pep_proxy_idm_host: "jcci.sparta.eu"
+sparta_jcci_docker_pep_proxy_idm_ssl_enabled: "true"
+sparta_jcci_docker_pep_proxy_idm_port: "4443"
+sparta_jcci_docker_pep_proxy_pdp: "jcci.sparta.eu"
+sparta_jcci_docker_pep_proxy_auth_enabled: "true"
+sparta_jcci_docker_pep_proxy_magic_key: "1234"
+sparta_jcci_docker_pep_proxy_azf_protocol: "https"
+sparta_jcci_docker_pep_proxy_azf_host: "jcci.sparta.eu"
+sparta_jcci_docker_pep_proxy_azf_port: "4445"
+sparta_jcci_docker_node_tls_reject_unauthorized: "0"
+
+# sparta_jcci_docker_pep_proxy_app_id:
+# sparta_jcci_docker_pep_proxy_username:
+# sparta_jcci_docker_pep_password:
