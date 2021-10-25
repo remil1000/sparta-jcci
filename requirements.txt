@@ -1,0 +1,5 @@
+Flask==2.0.2
+Flask-cors==3.0.10
+jinja2==3.0.2
+requests==2.26.0
+json2xml==3.8.4

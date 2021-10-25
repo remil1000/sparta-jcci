@@ -1,0 +1,40 @@
+version: "3.5"
+services:
+  sparta-jcci:
+    image: sparta-jcci:latest
+    hostname: sparta-jcci
+    restart: on-failure
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "5004:5004"
+    environment:
+      SPARTA_EXPOSED_HOST: changeme.domain.tld # TODO
+      SPARTA_EXPOSED_PORT: 8080
+      SPARTA_ORG: changeme # TODO
+  pep-proxy:
+    image: fiware/pep-proxy:8.1.0
+    hostname: pep-proxy
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - PEP_PROXY_APP_HOST=sparta-jcci
+      - PEP_PROXY_APP_PORT=5004
+      - PEP_PROXY_PORT=8080
+      - PEP_PROXY_IDM_HOST=jcci.sparta.eu
+      - PEP_PROXY_HTTPS_ENABLED=false # we will reverse proxy this ourselves
+      - PEP_PROXY_HTTPS_PORT=8443 # not used in this case
+      - PEP_PROXY_IDM_SSL_ENABLED=true
+      - PEP_PROXY_IDM_PORT=4443
+      - PEP_PROXY_PDP=jcci.sparta.eu
+      - PEP_PROXY_AUTH_ENABLED=true
+      - PEP_PROXY_MAGIC_KEY=1234
+      - PEP_PROXY_AZF_PROTOCOL=https
+      - PEP_PROXY_AZF_HOST=jcci.sparta.eu
+      - PEP_PROXY_AZF_PORT=4445
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - PEP_PROXY_APP_ID=changeme # TODO
+      - PEP_PROXY_USERNAME=changeme # TODO
+      - PEP_PASSWORD=changeme # TODO
