@@ -53,6 +53,8 @@
     state: started
     purge_networks: yes
     restart_policy: always
+    healthcheck:
+      test: [ "NONE" ]
     ports:
       - "127.0.0.1:{{ sparta_jcci_docker_port }}:{{ sparta_jcci_docker_port }}"
     networks:
