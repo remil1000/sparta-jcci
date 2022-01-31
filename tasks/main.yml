@@ -79,6 +79,7 @@
       PEP_PROXY_APP_ID: "{{ sparta_jcci_docker_pep_proxy_app_id }}"
       PEP_PROXY_USERNAME: "{{ sparta_jcci_docker_pep_proxy_username }}"
       PEP_PASSWORD: "{{ sparta_jcci_docker_pep_password }}"
+      PEP_PROXY_PUBLIC_PATHS: "{{ sparta_jcci_docker_pep_proxy_public_paths }}"
 
 - name: docker login into registry
   # for gitlab project: repo -> settings -> repository -> deploy tokens
