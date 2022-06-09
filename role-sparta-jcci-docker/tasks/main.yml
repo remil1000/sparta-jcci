@@ -1,0 +1,114 @@
+- name: basic asserts
+  assert:
+    that:
+      - sparta_jcci_docker_pep_proxy_app_id is defined
+      - sparta_jcci_docker_pep_proxy_username is defined
+      - sparta_jcci_docker_pep_password is defined
+      - sparta_jcci_docker_exposed_host is defined
+      - sparta_jcci_docker_exposed_port is defined
+      - sparta_jcci_docker_organization is defined
+  tags: always
+
+- name: sparta-jcci docker port
+  assert:
+    that:
+      - sparta_jcci_docker_port is defined
+  tags: always
+
+- name: create sparta-jcci-data
+  file:
+    path: "{{ item }}"
+    owner: nobody
+    group: nogroup
+    state: directory
+    mode: "0755"
+  loop:
+    - "/var/sparta-jcci/data"
+    - "/var/sparta-jcci/data/learning"
+
+- name: create sparta-jcci data files
+  loop: "{{sparta_jcci_docker_data_files | dict2items }}"
+  tags: dev
+  copy:
+    dest: "/var/sparta-jcci/data/{{ item.key }}"
+    content: "{{ ( sparta_jcci_docker_empty_data if item.value == '' else item.value ) | to_nice_json(indent=2) }}"
+    owner: nobody
+    group: nogroup
+    mode: "0644"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: create sparta-jcci docker network
+  docker_network:
+    name: "{{ sparta_jcci_docker_pep_proxy_network_name }}"
+    # network may clash with 172.19/16 of Conostix VPN
+    ipam_config:
+    - subnet: "{{ sparta_jcci_docker_pep_proxy_network }}"
+
+- name: start pep-proxy docker container
+  docker_container:
+    hostname: "{{ sparta_jcci_docker_pep_proxy_host }}"
+    name: "{{ sparta_jcci_docker_pep_proxy_host }}"
+    image: "{{ sparta_jcci_docker_pep_proxy_image }}"
+    state: started
+    purge_networks: yes
+    restart_policy: always
+    healthcheck:
+      test: [ "NONE" ]
+    ports:
+      - "127.0.0.1:{{ sparta_jcci_docker_port }}:{{ sparta_jcci_docker_port }}"
+    networks:
+      - name: bridge
+      - name: "{{ sparta_jcci_docker_pep_proxy_network_name }}"
+    env:
+      PEP_PROXY_APP_HOST: "{{ sparta_jcci_docker_pep_proxy_app_host }}"
+      PEP_PROXY_APP_PORT: "{{ sparta_jcci_docker_pep_proxy_app_port }}"
+      PEP_PROXY_PORT: "{{ sparta_jcci_docker_pep_proxy_port }}"
+      PEP_PROXY_HTTPS_ENABLED: "{{ sparta_jcci_docker_pep_proxy_https_enabled }}"
+      PEP_PROXY_HTTPS_PORT: "{{ sparta_jcci_docker_pep_proxy_https_port }}"
+      PEP_PROXY_IDM_HOST: "{{ sparta_jcci_docker_pep_proxy_idm_host }}"
+      PEP_PROXY_IDM_SSL_ENABLED: "{{ sparta_jcci_docker_pep_proxy_idm_ssl_enabled }}"
+      PEP_PROXY_IDM_PORT: "{{ sparta_jcci_docker_pep_proxy_idm_port }}"
+      PEP_PROXY_PDP: "{{ sparta_jcci_docker_pep_proxy_pdp }}"
+      PEP_PROXY_AUTH_ENABLED: "{{ sparta_jcci_docker_pep_proxy_auth_enabled }}"
+      PEP_PROXY_MAGIC_KEY: "{{ sparta_jcci_docker_pep_proxy_magic_key }}"
+      PEP_PROXY_AZF_PROTOCOL: "{{ sparta_jcci_docker_pep_proxy_azf_protocol }}"
+      PEP_PROXY_AZF_HOST: "{{ sparta_jcci_docker_pep_proxy_azf_host }}"
+      PEP_PROXY_AZF_PORT: "{{ sparta_jcci_docker_pep_proxy_azf_port }}"
+      NODE_TLS_REJECT_UNAUTHORIZED: "{{ sparta_jcci_docker_node_tls_reject_unauthorized }}"
+      PEP_PROXY_APP_ID: "{{ sparta_jcci_docker_pep_proxy_app_id }}"
+      PEP_PROXY_USERNAME: "{{ sparta_jcci_docker_pep_proxy_username }}"
+      PEP_PASSWORD: "{{ sparta_jcci_docker_pep_password }}"
+      PEP_PROXY_PUBLIC_PATHS: "{{ sparta_jcci_docker_pep_proxy_public_paths }}"
+
+- name: docker login into registry
+  # for gitlab project: repo -> settings -> repository -> deploy tokens
+  docker_login:
+    registry: "{{ sparta_jcci_docker_image_name }}"
+    username: "{{ sparta_jcci_docker_registry_username }}"
+    password: "{{ sparta_jcci_docker_registry_password }}"
+    #reauthorize: yes
+  environment:
+    http_proxy: "{{ http_proxy if http_proxy is defined else '' }}"
+    https_proxy: "{{ https_proxy if https_proxy is defined else '' }}"
+  when:
+    - sparta_jcci_docker_registry_username is defined
+    - sparta_jcci_docker_registry_password is defined
+
+- name: start sparta-jcci docker container
+  docker_container:
+    hostname: "{{ sparta_jcci_docker_pep_proxy_app_host }}"
+    name: "{{ sparta_jcci_docker_pep_proxy_app_host }}"
+    image: "{{ sparta_jcci_docker_image }}"
+    state: started
+    purge_networks: yes
+    restart_policy: always
+    pull: true
+    networks:
+      - name: "{{ sparta_jcci_docker_pep_proxy_network_name }}"
+    volumes:
+      - "/var/sparta-jcci/data/:/app/data/:ro"
+    env:
+      SPARTA_EXPOSED_HOST: "{{ sparta_jcci_docker_exposed_host }}"
+      SPARTA_EXPOSED_PORT: "{{ sparta_jcci_docker_exposed_port }}"
+      SPARTA_ORG: "{{ sparta_jcci_docker_organization }}"
