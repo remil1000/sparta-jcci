@@ -8,8 +8,8 @@ sparta_jcci_docker_empty_data:
 
 sparta_jcci_docker_pep_proxy_network_name: "sparta-jcci"
 sparta_jcci_docker_pep_proxy_network: "100.100.5.0/24"
-sparta_jcci_docker_image_name: "gitlab-ph.srv.office.secin.lu:5005/sysadmin/public/sparta-jcci"
-sparta_jcci_docker_image_tag: "0.1.0"
+sparta_jcci_docker_image_name: "ghcr.io/remil1000/sparta-jcci:{{ sparta_jcci_docker_image_tag }}"
+sparta_jcci_docker_image_tag: "0.1.1"
 sparta_jcci_docker_image: "{{ sparta_jcci_docker_image_name }}:{{ sparta_jcci_docker_image_tag }}"
 
 sparta_jcci_docker_environment: "production"

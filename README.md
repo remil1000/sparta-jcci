@@ -27,3 +27,6 @@ the appropriate JSON file.
 
 The `wadl_capabilities.xml` resource endpoint and name is updated on the fly,
 no need to edit it (see the exposed host, port and org above)
+
+
+You can also check `role-sparta-jcci-docker/` for an example deployment
